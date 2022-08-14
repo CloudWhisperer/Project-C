@@ -15,8 +15,8 @@ public class playermovement : MonoBehaviour
     bool jump = false;
     bool crouch = false;
     public float runspeed = 40f;
-    private bool ducked = false;
     public bool canslide = true;
+    public bool canwalljump = true;
 
     [Header("Wall Jump")]
     public LayerMask groundlayer;
@@ -41,30 +41,37 @@ public class playermovement : MonoBehaviour
 
         // walljumping
 
-        if (horizontalmove > 0.1)
-        {
-            wallcheckhit = Physics2D.Raycast(transform.position, new Vector2(walldistance, 0), walldistance, groundlayer);
-        }
-         else
-        {
-            wallcheckhit = Physics2D.Raycast(transform.position, new Vector2(-walldistance, 0), walldistance, groundlayer);
-        }
+            if (horizontalmove > 0.1)
+            {
+                wallcheckhit = Physics2D.Raycast(transform.position, new Vector2(walldistance, 0), walldistance, groundlayer);
+                Debug.DrawRay(transform.position, new Vector2(walldistance, 0), Color.blue);
+            }
 
-        if (wallcheckhit && !controller.m_Grounded && horizontalmove != 0)
+            else
+            {
+                wallcheckhit = Physics2D.Raycast(transform.position, new Vector2(-walldistance, 0), walldistance, groundlayer);
+                Debug.DrawRay(transform.position, new Vector2(-walldistance, 0), Color.blue);
+            }
+
+
+
+        if (wallcheckhit == true && canwalljump && !controller.m_Grounded && horizontalmove != 0)
         {
             iswallsliding = true;
             jumptime = Time.time + walljumptime;
             controller.m_JumpForce = 2200f;
+            canwalljump = false;
         }
 
         else if (jumptime < Time.time)
         {
             iswallsliding = false;
+            canwalljump = false;
             anim.SetBool("isonwall", false);
             controller.m_JumpForce = 1800f;
         }
 
-        if (iswallsliding)
+        if (iswallsliding == true)
         {
             anim.SetBool("isonwall", true);
             anim.SetBool("isjumping", false);
@@ -79,24 +86,26 @@ public class playermovement : MonoBehaviour
         horizontalmove = Input.GetAxisRaw("Horizontal") * runspeed;
         anim.SetFloat("speed", Mathf.Abs(horizontalmove));
 
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && !controller.topcover)
         {
             jump = true;
             anim.SetBool("isjumping", true);
         }
 
-        if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove < -0.01)
+        if (Input.GetButtonDown("Jump") && iswallsliding  && Input.GetButtonDown("Jump") && horizontalmove < -0.0001)
         {
             jump = true;
             anim.SetBool("isjumping", true);
-            rigid.AddForce(Vector2.left * 2000);
+            rigid.AddForce(Vector2.left * 3500);
+            StartCoroutine("aircontrolcooldown");
         }
 
-        if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove > -0.01)
+        if (Input.GetButtonDown("Jump") && iswallsliding  && Input.GetButtonDown("Jump") && horizontalmove > 0.0001)
         {
             jump = true;
             anim.SetBool("isjumping", true);
-            rigid.AddForce(Vector2.right * 2000);
+            rigid.AddForce(Vector2.right * 3500);
+            StartCoroutine("aircontrolcooldown");
         }
 
         if (Input.GetButtonDown("Crouch") && canslide && controller.m_Grounded)
@@ -127,6 +136,31 @@ public class playermovement : MonoBehaviour
             StartCoroutine("stopslide");
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.layer == 9)
+        {
+            canwalljump = true;
+            Debug.Log("touch");
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.layer == 9)
+        {
+            canwalljump = false;
+            Debug.Log("exit");
+        }
+    }
+
+    private IEnumerator aircontrolcooldown()
+    {
+        controller.m_AirControl = false;
+        yield return new WaitForSeconds(0.5f);
+        controller.m_AirControl = true;
+    }
+
     private IEnumerator stopslide()
     {
         yield return new WaitForSeconds(0.7f);
@@ -152,7 +186,6 @@ public class playermovement : MonoBehaviour
         yield return new WaitForSeconds(0.25f);
         canslide = true;
     }
-
 
     private IEnumerator Addleft()
     {
