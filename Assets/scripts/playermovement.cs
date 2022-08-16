@@ -58,17 +58,19 @@ public class playermovement : MonoBehaviour
         if (wallcheckhit == true && canwalljump && !controller.m_Grounded && horizontalmove != 0)
         {
             iswallsliding = true;
+            runspeed = 1;
             jumptime = Time.time + walljumptime;
-            controller.m_JumpForce = 2200f;
+            controller.m_JumpForce = 2000f;
             canwalljump = false;
         }
 
         else if (jumptime < Time.time)
         {
             iswallsliding = false;
+            runspeed = 40;
             canwalljump = false;
             anim.SetBool("isonwall", false);
-            controller.m_JumpForce = 1800f;
+            controller.m_JumpForce = 2000f;
         }
 
         if (iswallsliding == true)
@@ -96,16 +98,24 @@ public class playermovement : MonoBehaviour
         {
             jump = true;
             anim.SetBool("isjumping", true);
-            rigid.AddForce(Vector2.left * 3500);
-            StartCoroutine("aircontrolcooldown");
+            rigid.AddForce(Vector2.left * 3000);
+            runspeed = 40;
+            //StartCoroutine("aircontrolcooldown");
         }
 
         if (Input.GetButtonDown("Jump") && iswallsliding  && Input.GetButtonDown("Jump") && horizontalmove > 0.0001)
         {
             jump = true;
             anim.SetBool("isjumping", true);
-            rigid.AddForce(Vector2.right * 3500);
-            StartCoroutine("aircontrolcooldown");
+            rigid.AddForce(Vector2.right * 3000);
+            runspeed = 40;
+            //StartCoroutine("aircontrolcooldown");
+        }
+
+        if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove == 0)
+        {
+            jump = false;
+            anim.SetBool("isjumping", false);
         }
 
         if (Input.GetButtonDown("Crouch") && canslide && controller.m_Grounded)
@@ -157,7 +167,7 @@ public class playermovement : MonoBehaviour
     private IEnumerator aircontrolcooldown()
     {
         controller.m_AirControl = false;
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
         controller.m_AirControl = true;
     }
 
