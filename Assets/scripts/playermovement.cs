@@ -17,6 +17,15 @@ public class playermovement : MonoBehaviour
     public float runspeed = 40f;
     public bool canslide = true;
     public bool canwalljump = true;
+    public float offset;
+    Vector2 offsetvec;
+
+    public float coyotetime = 0.2f;
+    public float coyotetimecounter;
+
+    private float jumpbuffertime = 0.4f;
+    private float jumpbuffercounter;
+    private bool isjumping;
 
     [Header("Wall Jump")]
     public LayerMask groundlayer;
@@ -36,6 +45,7 @@ public class playermovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        offsetvec = new Vector2(this.gameObject.transform.position.x, this.gameObject.transform.position.y + offset);
         controller.Move(horizontalmove * Time.fixedDeltaTime, crouch, jump);
         jump = false;
 
@@ -43,14 +53,14 @@ public class playermovement : MonoBehaviour
 
             if (horizontalmove > 0.1)
             {
-                wallcheckhit = Physics2D.Raycast(transform.position, new Vector2(walldistance, 0), walldistance, groundlayer);
-                Debug.DrawRay(transform.position, new Vector2(walldistance, 0), Color.blue);
+                wallcheckhit = Physics2D.Raycast(offsetvec, new Vector2(walldistance, 0), walldistance, groundlayer);
+                Debug.DrawRay(offsetvec, new Vector2(walldistance, 0), Color.blue);
             }
 
             else
             {
-                wallcheckhit = Physics2D.Raycast(transform.position, new Vector2(-walldistance, 0), walldistance, groundlayer);
-                Debug.DrawRay(transform.position, new Vector2(-walldistance, 0), Color.blue);
+                wallcheckhit = Physics2D.Raycast(offsetvec, new Vector2(-walldistance, 0), walldistance, groundlayer);
+                Debug.DrawRay(offsetvec, new Vector2(-walldistance, 0), Color.blue);
             }
 
 
@@ -60,7 +70,7 @@ public class playermovement : MonoBehaviour
             iswallsliding = true;
             runspeed = 1;
             jumptime = Time.time + walljumptime;
-            controller.m_JumpForce = 2000f;
+            controller.m_JumpForce = 2600f;
             canwalljump = false;
         }
 
@@ -70,7 +80,7 @@ public class playermovement : MonoBehaviour
             runspeed = 40;
             canwalljump = false;
             anim.SetBool("isonwall", false);
-            controller.m_JumpForce = 2000f;
+            controller.m_JumpForce = 2100f;
         }
 
         if (iswallsliding == true)
@@ -87,33 +97,62 @@ public class playermovement : MonoBehaviour
     {
         horizontalmove = Input.GetAxisRaw("Horizontal") * runspeed;
         anim.SetFloat("speed", Mathf.Abs(horizontalmove));
+   
+        if (controller.m_Grounded)
+        {
+            coyotetimecounter = coyotetime;
+        }
+        else
+        {
+            coyotetimecounter -= Time.smoothDeltaTime;
+        }
 
-        if (Input.GetButtonDown("Jump") && !controller.topcover)
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpbuffercounter = jumpbuffertime;
+        }
+        else
+        {
+            jumpbuffercounter -= Time.deltaTime;
+        }
+
+        if (jumpbuffercounter > 0f && !controller.topcover && !isjumping)
         {
             jump = true;
             anim.SetBool("isjumping", true);
+            jumpbuffercounter = 0f;
+            StartCoroutine(JumpCooldown());
+        }
+
+        if (Input.GetButtonUp("Jump") && rigid.velocity.y > 0f)
+        {
+            rigid.velocity = new Vector2(rigid.velocity.x, rigid.velocity.y * 0.5f);
+            coyotetimecounter = 0f;
         }
 
         if (Input.GetButtonDown("Jump") && iswallsliding  && Input.GetButtonDown("Jump") && horizontalmove < -0.0001)
         {
             jump = true;
+            StartCoroutine("wallslidecooldown");
             anim.SetBool("isjumping", true);
-            rigid.AddForce(Vector2.left * 3000);
+            rigid.AddForce(Vector2.left * 1500);
             runspeed = 40;
-            //StartCoroutine("aircontrolcooldown");
+            StartCoroutine("aircontrolcooldown");
         }
 
         if (Input.GetButtonDown("Jump") && iswallsliding  && Input.GetButtonDown("Jump") && horizontalmove > 0.0001)
         {
             jump = true;
+            StartCoroutine("wallslidecooldown");
             anim.SetBool("isjumping", true);
-            rigid.AddForce(Vector2.right * 3000);
+            rigid.AddForce(Vector2.right * 1500);
             runspeed = 40;
-            //StartCoroutine("aircontrolcooldown");
+            StartCoroutine("aircontrolcooldown");
         }
 
         if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove == 0)
         {
+            StartCoroutine("wallslidecooldown");
             jump = false;
             anim.SetBool("isjumping", false);
         }
@@ -167,8 +206,16 @@ public class playermovement : MonoBehaviour
     private IEnumerator aircontrolcooldown()
     {
         controller.m_AirControl = false;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.25f);
         controller.m_AirControl = true;
+    }
+
+    private IEnumerator wallslidecooldown()
+    {
+        yield return new WaitForSeconds(0.1f);
+        iswallsliding = false;
+        yield return new WaitForSeconds(0.1f);
+        iswallsliding = true;
     }
 
     private IEnumerator stopslide()
@@ -214,6 +261,13 @@ public class playermovement : MonoBehaviour
             rigid.AddForce(Vector2.right * 1000);
             yield return new WaitForSeconds(0.03f);
         }
+    }
+
+    private IEnumerator JumpCooldown()
+    {
+        isjumping = true;
+        yield return new WaitForSeconds(0.3f);
+        isjumping = false;
     }
 
     public void Onlanding ()

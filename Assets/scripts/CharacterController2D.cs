@@ -3,7 +3,7 @@ using UnityEngine.Events;
 
 public class CharacterController2D : MonoBehaviour
 {
-	[SerializeField] public float m_JumpForce = 400f;							// Amount of force added when the player jumps.
+	[SerializeField] public float m_JumpForce;							// Amount of force added when the player jumps.
 	[Range(0, 1)] [SerializeField] private float m_CrouchSpeed = .36f;			// Amount of maxSpeed applied to crouching movement. 1 = 100%
 	[Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;	// How much to smooth out the movement
 	[SerializeField] public bool m_AirControl = false;							// Whether or not a player can steer while jumping;
@@ -142,15 +142,22 @@ public class CharacterController2D : MonoBehaviour
 				Flip();
 			}
 		}
-		// If the player should jump...
-		if (m_Grounded && jump || movescript.iswallsliding && jump)
+        // If the player should jump...
+        if (movescript.coyotetimecounter > 0f && jump || movescript.iswallsliding && jump)
 		{
+            if (m_Grounded == false)
+            {
+                m_JumpForce = 3000f;
+            }
+
 			// Add a vertical force to the player.
 			m_Grounded = true;
             topcover = false;
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
+            m_JumpForce = 2100f;
         }
-	}
+
+    }
 
 
 	private void Flip()
