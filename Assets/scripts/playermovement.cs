@@ -51,7 +51,7 @@ public class playermovement : MonoBehaviour
 
         // walljumping
 
-            if (horizontalmove > 0.1)
+            if (horizontalmove > 0.05)
             {
                 wallcheckhit = Physics2D.Raycast(offsetvec, new Vector2(walldistance, 0), walldistance, groundlayer);
                 Debug.DrawRay(offsetvec, new Vector2(walldistance, 0), Color.blue);
@@ -68,7 +68,7 @@ public class playermovement : MonoBehaviour
         if (wallcheckhit == true && canwalljump && !controller.m_Grounded && horizontalmove != 0)
         {
             iswallsliding = true;
-            runspeed = 1;
+            runspeed = 5;
             jumptime = Time.time + walljumptime;
             controller.m_JumpForce = 2600f;
             canwalljump = false;
@@ -135,7 +135,7 @@ public class playermovement : MonoBehaviour
             jump = true;
             StartCoroutine("wallslidecooldown");
             anim.SetBool("isjumping", true);
-            rigid.AddForce(Vector2.left * 1500);
+            rigid.AddForce(Vector2.left * 1000);
             runspeed = 40;
             StartCoroutine("aircontrolcooldown");
         }
@@ -145,7 +145,7 @@ public class playermovement : MonoBehaviour
             jump = true;
             StartCoroutine("wallslidecooldown");
             anim.SetBool("isjumping", true);
-            rigid.AddForce(Vector2.right * 1500);
+            rigid.AddForce(Vector2.right * 1000);
             runspeed = 40;
             StartCoroutine("aircontrolcooldown");
         }
@@ -214,8 +214,10 @@ public class playermovement : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         iswallsliding = false;
-        yield return new WaitForSeconds(0.1f);
+        Debug.Log("off");
+        yield return new WaitForSeconds(0.3f);
         iswallsliding = true;
+        Debug.Log("on");
     }
 
     private IEnumerator stopslide()
