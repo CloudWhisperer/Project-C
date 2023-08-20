@@ -126,7 +126,7 @@ public class playermovement : MonoBehaviour
 
         if (Input.GetButtonUp("Jump") && rigid.velocity.y > 0f)
         {
-            rigid.velocity = new Vector2(rigid.velocity.x, rigid.velocity.y * 0.5f);
+            rigid.velocity = new Vector2(rigid.velocity.x, rigid.velocity.y * 0.1f);
             coyotetimecounter = 0f;
         }
 
