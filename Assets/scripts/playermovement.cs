@@ -45,11 +45,11 @@ public class playermovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        offsetvec = new Vector2(this.gameObject.transform.position.x, this.gameObject.transform.position.y + offset);
-        controller.Move(horizontalmove * Time.fixedDeltaTime, crouch, jump);
-        jump = false;
+            offsetvec = new Vector2(this.gameObject.transform.position.x, this.gameObject.transform.position.y + offset);
+            controller.Move(horizontalmove * Time.fixedDeltaTime, crouch, jump);
+            jump = false;
 
-        // walljumping
+            // walljumping
 
             if (horizontalmove > 0.05)
             {
@@ -65,104 +65,104 @@ public class playermovement : MonoBehaviour
 
 
 
-        if (wallcheckhit == true && canwalljump && !controller.m_Grounded && horizontalmove != 0)
-        {
-            iswallsliding = true;
-            runspeed = 5;
-            jumptime = Time.time + walljumptime;
-            controller.m_JumpForce = 2600f;
-            canwalljump = false;
-        }
+            if (wallcheckhit == true && canwalljump && !controller.m_Grounded && horizontalmove != 0)
+            {
+                iswallsliding = true;
+                runspeed = 5;
+                jumptime = Time.time + walljumptime;
+                controller.m_JumpForce = 2600f;
+                canwalljump = false;
+            }
 
-        else if (jumptime < Time.time)
-        {
-            iswallsliding = false;
-            runspeed = 40;
-            canwalljump = false;
-            anim.SetBool("isonwall", false);
-            controller.m_JumpForce = 2100f;
-        }
+            else if (jumptime < Time.time)
+            {
+                iswallsliding = false;
+                runspeed = 40;
+                canwalljump = false;
+                anim.SetBool("isonwall", false);
+                controller.m_JumpForce = 2100f;
+            }
 
-        if (iswallsliding == true)
-        {
-            anim.SetBool("isonwall", true);
-            anim.SetBool("isjumping", false);
-            rigid.velocity = new Vector2(rigid.velocity.x, Mathf.Clamp(rigid.velocity.y, wallslidespeed, float.MaxValue));
-        }
+            if (iswallsliding == true)
+            {
+                anim.SetBool("isonwall", true);
+                anim.SetBool("isjumping", false);
+                rigid.velocity = new Vector2(rigid.velocity.x, Mathf.Clamp(rigid.velocity.y, wallslidespeed, float.MaxValue));
+            }
 
-    }
+        }
 
     // Update is called once per frame
     void Update()
     {
-        horizontalmove = Input.GetAxisRaw("Horizontal") * runspeed;
-        anim.SetFloat("speed", Mathf.Abs(horizontalmove));
-   
-        if (controller.m_Grounded)
-        {
-            coyotetimecounter = coyotetime;
-        }
-        else
-        {
-            coyotetimecounter -= Time.smoothDeltaTime;
-        }
+            horizontalmove = Input.GetAxisRaw("Horizontal") * runspeed;
+            anim.SetFloat("speed", Mathf.Abs(horizontalmove));
 
-        if (Input.GetButtonDown("Jump"))
-        {
-            jumpbuffercounter = jumpbuffertime;
-        }
-        else
-        {
-            jumpbuffercounter -= Time.deltaTime;
-        }
+            if (controller.m_Grounded)
+            {
+                coyotetimecounter = coyotetime;
+            }
+            else
+            {
+                coyotetimecounter -= Time.smoothDeltaTime;
+            }
 
-        if (jumpbuffercounter > 0f && !controller.topcover && !isjumping)
-        {
-            jump = true;
-            anim.SetBool("isjumping", true);
-            jumpbuffercounter = 0f;
-            StartCoroutine(JumpCooldown());
-        }
+            if (Input.GetButtonDown("Jump"))
+            {
+                jumpbuffercounter = jumpbuffertime;
+            }
+            else
+            {
+                jumpbuffercounter -= Time.deltaTime;
+            }
 
-        if (Input.GetButtonUp("Jump") && rigid.velocity.y > 0f)
-        {
-            rigid.velocity = new Vector2(rigid.velocity.x, rigid.velocity.y * 0.1f);
-            coyotetimecounter = 0f;
-        }
+            if (jumpbuffercounter > 0f && !controller.topcover && !isjumping)
+            {
+                jump = true;
+                anim.SetBool("isjumping", true);
+                jumpbuffercounter = 0f;
+                StartCoroutine(JumpCooldown());
+            }
 
-        if (Input.GetButtonDown("Jump") && iswallsliding  && Input.GetButtonDown("Jump") && horizontalmove < -0.0001)
-        {
-            jump = true;
-            StartCoroutine("wallslidecooldown");
-            anim.SetBool("isjumping", true);
-            rigid.AddForce(Vector2.left * 1000);
-            runspeed = 40;
-            StartCoroutine("aircontrolcooldown");
-        }
+            if (Input.GetButtonUp("Jump") && rigid.velocity.y > 0f)
+            {
+                rigid.velocity = new Vector2(rigid.velocity.x, rigid.velocity.y * 0.1f);
+                coyotetimecounter = 0f;
+            }
 
-        if (Input.GetButtonDown("Jump") && iswallsliding  && Input.GetButtonDown("Jump") && horizontalmove > 0.0001)
-        {
-            jump = true;
-            StartCoroutine("wallslidecooldown");
-            anim.SetBool("isjumping", true);
-            rigid.AddForce(Vector2.right * 1000);
-            runspeed = 40;
-            StartCoroutine("aircontrolcooldown");
-        }
+            if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove < -0.0001)
+            {
+                jump = true;
+                StartCoroutine("wallslidecooldown");
+                anim.SetBool("isjumping", true);
+                rigid.AddForce(Vector2.left * 1000);
+                runspeed = 40;
+                StartCoroutine("aircontrolcooldown");
+            }
 
-        if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove == 0)
-        {
-            StartCoroutine("wallslidecooldown");
-            jump = false;
-            anim.SetBool("isjumping", false);
-        }
+            if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove > 0.0001)
+            {
+                jump = true;
+                StartCoroutine("wallslidecooldown");
+                anim.SetBool("isjumping", true);
+                rigid.AddForce(Vector2.right * 1000);
+                runspeed = 40;
+                StartCoroutine("aircontrolcooldown");
+            }
 
-        if (Input.GetButtonDown("Crouch") && canslide && controller.m_Grounded)
-        {
-            GetComponent<CircleCollider2D>().sharedMaterial = slippery;
-            Performslide();
+            if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove == 0)
+            {
+                StartCoroutine("wallslidecooldown");
+                jump = false;
+                anim.SetBool("isjumping", false);
+            }
+
+            if (Input.GetButtonDown("Crouch") && canslide && controller.m_Grounded)
+            {
+                GetComponent<CircleCollider2D>().sharedMaterial = slippery;
+                Performslide();
+            }
         }
-    }
 
     public void Performslide()
     {
