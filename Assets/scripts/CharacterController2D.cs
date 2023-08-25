@@ -143,18 +143,20 @@ public class CharacterController2D : MonoBehaviour
 			}
 		}
         // If the player should jump...
-        if (movescript.coyotetimecounter > 0f && jump || movescript.iswallsliding && jump)
+        if (movescript.coyotetimecounter > 0f && jump)
 		{
-            if (m_Grounded == false)
-            {
-                m_JumpForce = 3000f;
-            }
-
 			// Add a vertical force to the player.
 			m_Grounded = true;
-            topcover = false;
+			topcover = false;
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
-            m_JumpForce = 2100f;
+			m_JumpForce = 2300f;
+        }
+
+		if(movescript.iswallsliding && jump)
+		{
+            topcover = false;
+            m_JumpForce = 2300f;
+            m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
         }
 
     }

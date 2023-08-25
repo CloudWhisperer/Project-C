@@ -43,55 +43,6 @@ public class playermovement : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
     }
 
-    void FixedUpdate()
-    {
-            offsetvec = new Vector2(this.gameObject.transform.position.x, this.gameObject.transform.position.y + offset);
-            controller.Move(horizontalmove * Time.fixedDeltaTime, crouch, jump);
-            jump = false;
-
-            // walljumping
-
-            if (horizontalmove > 0.05)
-            {
-                wallcheckhit = Physics2D.Raycast(offsetvec, new Vector2(walldistance, 0), walldistance, groundlayer);
-                Debug.DrawRay(offsetvec, new Vector2(walldistance, 0), Color.blue);
-            }
-
-            else
-            {
-                wallcheckhit = Physics2D.Raycast(offsetvec, new Vector2(-walldistance, 0), walldistance, groundlayer);
-                Debug.DrawRay(offsetvec, new Vector2(-walldistance, 0), Color.blue);
-            }
-
-
-
-            if (wallcheckhit == true && canwalljump && !controller.m_Grounded && horizontalmove != 0)
-            {
-                iswallsliding = true;
-                runspeed = 5;
-                jumptime = Time.time + walljumptime;
-                controller.m_JumpForce = 2600f;
-                canwalljump = false;
-            }
-
-            else if (jumptime < Time.time)
-            {
-                iswallsliding = false;
-                runspeed = 40;
-                canwalljump = false;
-                anim.SetBool("isonwall", false);
-                controller.m_JumpForce = 2100f;
-            }
-
-            if (iswallsliding == true)
-            {
-                anim.SetBool("isonwall", true);
-                anim.SetBool("isjumping", false);
-                rigid.velocity = new Vector2(rigid.velocity.x, Mathf.Clamp(rigid.velocity.y, wallslidespeed, float.MaxValue));
-            }
-
-        }
-
     // Update is called once per frame
     void Update()
     {
@@ -132,6 +83,7 @@ public class playermovement : MonoBehaviour
 
             if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove < -0.0001)
             {
+                Debug.Log("jumped off wall left");
                 jump = true;
                 StartCoroutine("wallslidecooldown");
                 anim.SetBool("isjumping", true);
@@ -142,6 +94,7 @@ public class playermovement : MonoBehaviour
 
             if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove > 0.0001)
             {
+                Debug.Log("jumped off wall right");
                 jump = true;
                 StartCoroutine("wallslidecooldown");
                 anim.SetBool("isjumping", true);
@@ -152,6 +105,7 @@ public class playermovement : MonoBehaviour
 
             if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove == 0)
             {
+                Debug.Log("reset due to time");
                 StartCoroutine("wallslidecooldown");
                 jump = false;
                 anim.SetBool("isjumping", false);
@@ -162,7 +116,55 @@ public class playermovement : MonoBehaviour
                 GetComponent<CircleCollider2D>().sharedMaterial = slippery;
                 Performslide();
             }
+
+        offsetvec = new Vector2(this.gameObject.transform.position.x, this.gameObject.transform.position.y + offset);
+        controller.Move(horizontalmove * Time.fixedDeltaTime, crouch, jump);
+        jump = false;
+
+        // walljumping
+
+        if (horizontalmove > 0.05)
+        {
+            wallcheckhit = Physics2D.Raycast(offsetvec, new Vector2(walldistance, 0), walldistance, groundlayer);
+            Debug.DrawRay(offsetvec, new Vector2(walldistance, 0), Color.blue);
         }
+
+        else
+        {
+            wallcheckhit = Physics2D.Raycast(offsetvec, new Vector2(-walldistance, 0), walldistance, groundlayer);
+            Debug.DrawRay(offsetvec, new Vector2(-walldistance, 0), Color.blue);
+        }
+
+
+
+        if (wallcheckhit == true && canwalljump && !controller.m_Grounded && horizontalmove != 0)
+        {
+            iswallsliding = true;
+            coyotetime = 0f;
+            runspeed = 5;
+            jumptime = Time.time + walljumptime;
+            controller.m_JumpForce = 2600f;
+            canwalljump = false;
+        }
+
+        else if (jumptime < Time.time)
+        {
+            coyotetime = 0.2f;
+            iswallsliding = false;
+            runspeed = 40;
+            canwalljump = false;
+            anim.SetBool("isonwall", false);
+            controller.m_JumpForce = 2100f;
+        }
+
+        if (iswallsliding == true)
+        {
+            coyotetime = 0f;
+            anim.SetBool("isonwall", true);
+            anim.SetBool("isjumping", false);
+            rigid.velocity = new Vector2(rigid.velocity.x, Mathf.Clamp(rigid.velocity.y, wallslidespeed, float.MaxValue));
+        }
+    }
 
     public void Performslide()
     {
@@ -190,7 +192,7 @@ public class playermovement : MonoBehaviour
         if (collision.gameObject.layer == 9)
         {
             canwalljump = true;
-            Debug.Log("touch");
+            //Debug.Log("touch");
         }
     }
 
@@ -199,12 +201,13 @@ public class playermovement : MonoBehaviour
         if (collision.gameObject.layer == 9)
         {
             canwalljump = false;
-            Debug.Log("exit");
+            //Debug.Log("exit");
         }
     }
 
     private IEnumerator aircontrolcooldown()
     {
+        Debug.Log("airoffnow");
         controller.m_AirControl = false;
         yield return new WaitForSeconds(0.25f);
         controller.m_AirControl = true;
@@ -214,10 +217,11 @@ public class playermovement : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         iswallsliding = false;
-        Debug.Log("off");
+        Debug.Log("OFF COOLDOWN");
         yield return new WaitForSeconds(0.3f);
         iswallsliding = true;
-        Debug.Log("on");
+        coyotetime = 0.2f;
+        Debug.Log("ON COOLDOWN");
     }
 
     private IEnumerator stopslide()

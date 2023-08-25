@@ -39,6 +39,8 @@ public class Death : MonoBehaviour
         playermovescript.enabled = false;
         charactercontroller.enabled = false;
         worldSwitcher.isunlocked = false;
+        rb.simulated = false;
+
 
         Debug.Log("dead lol");
         deathparticle.SetActive(true);
