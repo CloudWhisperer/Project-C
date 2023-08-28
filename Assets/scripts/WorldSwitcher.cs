@@ -7,7 +7,7 @@ using UnityEngine.Rendering.Universal;
 
 public class WorldSwitcher : MonoBehaviour
 {
-    private bool isfakeworld;
+    public bool isfakeworld;
     public bool isunlocked;
     public Light2D Blueworldlight;
 
