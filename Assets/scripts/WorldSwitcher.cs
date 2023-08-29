@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 
 public class WorldSwitcher : MonoBehaviour
 {
@@ -28,6 +29,9 @@ public class WorldSwitcher : MonoBehaviour
     public GameObject r_world_death_colliders;
     public GameObject f_world_death_colliders;
 
+    public Volume realworldpostprocessing;
+    public Volume fakeworldpostprocessing;
+
     // Update is called once per frame
     void Update()
     {
@@ -37,40 +41,54 @@ public class WorldSwitcher : MonoBehaviour
 
             if (isfakeworld == true)
             {
-                Debug.Log("on");
-
-                Blueworldlight.intensity = 0.2f;
-
-                realworldtilemap.color = nearlyTransparent2;
-                fakeworldtilemap.color = defaultColor;
-                realworldbackground.color = gone;
-                fakeworldbackground.color = nearlyTransparent2;
-
-                fakeworldcolliders.enabled = true;
-                realworldcolliders.enabled = false;
-
-                r_world_death_colliders.SetActive(false);
-                f_world_death_colliders.SetActive(true);
+                Enable_fake_world();
             }
 
             else
             {
-                Debug.Log("off");
-
-                Blueworldlight.intensity = 0f;
-
-                realworldtilemap.color = defaultColor;
-                fakeworldtilemap.color = nearlyTransparent;
-
-                realworldbackground.color = defaultColor;
-                fakeworldbackground.color = gone;
-
-                fakeworldcolliders.enabled = false;
-                realworldcolliders.enabled = true;
-
-                r_world_death_colliders.SetActive(true);
-                f_world_death_colliders.SetActive(false);
+                Disable_fake_world();
             }
         }
+    }
+
+    public void Disable_fake_world()
+    {
+        Debug.Log("off");
+        fakeworldpostprocessing.enabled = false;
+        realworldpostprocessing.enabled = true;
+
+        Blueworldlight.intensity = 0f;
+
+        realworldtilemap.color = defaultColor;
+        fakeworldtilemap.color = nearlyTransparent;
+
+        realworldbackground.color = defaultColor;
+        fakeworldbackground.color = gone;
+
+        fakeworldcolliders.enabled = false;
+        realworldcolliders.enabled = true;
+
+        r_world_death_colliders.SetActive(true);
+        f_world_death_colliders.SetActive(false);
+    }
+
+    public void Enable_fake_world()
+    {
+        Debug.Log("on");
+        fakeworldpostprocessing.enabled = true;
+        realworldpostprocessing.enabled = false;
+
+        Blueworldlight.intensity = 0.2f;
+
+        realworldtilemap.color = nearlyTransparent2;
+        fakeworldtilemap.color = defaultColor;
+        realworldbackground.color = gone;
+        fakeworldbackground.color = nearlyTransparent2;
+
+        fakeworldcolliders.enabled = true;
+        realworldcolliders.enabled = false;
+
+        r_world_death_colliders.SetActive(false);
+        f_world_death_colliders.SetActive(true);
     }
 }

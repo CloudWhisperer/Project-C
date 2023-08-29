@@ -149,13 +149,13 @@ public class CharacterController2D : MonoBehaviour
 			m_Grounded = true;
 			topcover = false;
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
-			m_JumpForce = 2300f;
+			m_JumpForce = 2400f;
         }
 
 		if(movescript.iswallsliding && jump)
 		{
             topcover = false;
-            m_JumpForce = 2300f;
+            m_JumpForce = 2700f;
             m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
         }
 

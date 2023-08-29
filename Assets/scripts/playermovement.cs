@@ -81,7 +81,7 @@ public class playermovement : MonoBehaviour
                 coyotetimecounter = 0f;
             }
 
-            if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove < -0.0001)
+            if (Input.GetButtonDown("Jump") && iswallsliding && horizontalmove < -0.0001)
             {
                 Debug.Log("jumped off wall left");
                 jump = true;
@@ -92,7 +92,7 @@ public class playermovement : MonoBehaviour
                 StartCoroutine("aircontrolcooldown");
             }
 
-            if (Input.GetButtonDown("Jump") && iswallsliding && Input.GetButtonDown("Jump") && horizontalmove > 0.0001)
+            if (Input.GetButtonDown("Jump") && iswallsliding && horizontalmove > 0.0001)
             {
                 Debug.Log("jumped off wall right");
                 jump = true;

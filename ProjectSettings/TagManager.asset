@@ -8,6 +8,7 @@ TagManager:
   - Spike
   - GM
   - PlayerDialogueColl
+  - jumpscript
   layers:
   - Default
   - TransparentFX
