@@ -219,7 +219,7 @@ public class playermovement : MonoBehaviour
 
     private IEnumerator wallslidecooldown()
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.01f);
         iswallsliding = false;
         Debug.Log("OFF COOLDOWN");
         yield return new WaitForSeconds(0.3f);

@@ -9,6 +9,7 @@ TagManager:
   - GM
   - PlayerDialogueColl
   - jumpscript
+  - Music
   layers:
   - Default
   - TransparentFX

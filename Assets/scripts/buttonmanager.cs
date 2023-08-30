@@ -18,6 +18,6 @@ public class buttonmanager : MonoBehaviour
     public void exitgame()
     {
         Application.Quit();
-        UnityEditor.EditorApplication.isPlaying = false;
+        //UnityEditor.EditorApplication.isPlaying = false;
     }
 }

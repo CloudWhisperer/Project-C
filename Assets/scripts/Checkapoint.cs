@@ -9,6 +9,7 @@ public class Checkapoint : MonoBehaviour
     private Animator torchanim;
     private Light2D torchlight;
     public AudioSource torchsound;
+    private bool istouched = false;
 
     private void Start()
     {
@@ -19,13 +20,14 @@ public class Checkapoint : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D coll)
     {
-        if (coll.CompareTag("Player"))
+        if (coll.CompareTag("Player") && istouched == false)
         {
             gm.lastcheckpointpos = transform.position;
             spriterenderer.sprite = torchsprite;
             torchanim.enabled = true;
             torchlight.intensity = 1;
             torchsound.Play();
+            istouched = true;
         }
     }
 }
