@@ -17,6 +17,8 @@ public class dialoguecreator : MonoBehaviour
     private BoxCollider2D dialogue_trigger;
     private bool triggered = false;
     public GameObject next_dialogue_trigger;
+    public AudioSource click;
+    public AudioSource textscroll;
 
     void Start()
     {
@@ -72,16 +74,22 @@ public class dialoguecreator : MonoBehaviour
     {
         //delay for animation
         yield return new WaitForSeconds(0.6f);
+        textscroll.Play();
 
         foreach (char c in lines[index].ToCharArray())
         {
             text.text += c;
             yield return new WaitForSeconds(textspeed);
         }
+
+        textscroll.Stop();
     }
 
     void nextline()
     {
+        click.Play();
+        textscroll.Stop();
+
         if (index < lines.Length - 1)
         {
             index++;

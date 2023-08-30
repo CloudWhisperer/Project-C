@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR;
 
 public class endingspam : MonoBehaviour
 {
@@ -22,7 +19,7 @@ public class endingspam : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.CompareTag("PlayerDialogueColl"))
+        if (collision.CompareTag("PlayerDialogueColl"))
         {
             switchscript.isunlocked = false;
             jumpscript.startmechanic = false;

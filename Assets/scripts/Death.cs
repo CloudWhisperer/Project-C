@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,6 +14,7 @@ public class Death : MonoBehaviour
     private WorldSwitcher worldSwitcher;
     private SpriteRenderer playersprite;
     private Rigidbody2D rb;
+    public AudioSource deathsound;
 
     private void Start()
     {
@@ -40,6 +40,8 @@ public class Death : MonoBehaviour
         charactercontroller.enabled = false;
         worldSwitcher.isunlocked = false;
         rb.simulated = false;
+
+        deathsound.Play();
 
 
         Debug.Log("dead lol");

@@ -3,14 +3,14 @@ using UnityEngine.Events;
 
 public class CharacterController2D : MonoBehaviour
 {
-	[SerializeField] public float m_JumpForce;							// Amount of force added when the player jumps.
-	[Range(0, 1)] [SerializeField] private float m_CrouchSpeed = .36f;			// Amount of maxSpeed applied to crouching movement. 1 = 100%
-	[Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;	// How much to smooth out the movement
-	[SerializeField] public bool m_AirControl = false;							// Whether or not a player can steer while jumping;
-	[SerializeField] private LayerMask m_WhatIsGround;							// A mask determining what is ground to the character
-	[SerializeField] private Transform m_GroundCheck;							// A position marking where to check if the player is grounded.
-	[SerializeField] private Transform m_CeilingCheck;							// A position marking where to check for ceilings
-	[SerializeField] private Collider2D m_CrouchDisableCollider;				// A collider that will be disabled when crouching
+	[SerializeField] public float m_JumpForce;                          // Amount of force added when the player jumps.
+	[Range(0, 1)][SerializeField] private float m_CrouchSpeed = .36f;           // Amount of maxSpeed applied to crouching movement. 1 = 100%
+	[Range(0, .3f)][SerializeField] private float m_MovementSmoothing = .05f;   // How much to smooth out the movement
+	[SerializeField] public bool m_AirControl = false;                          // Whether or not a player can steer while jumping;
+	[SerializeField] private LayerMask m_WhatIsGround;                          // A mask determining what is ground to the character
+	[SerializeField] private Transform m_GroundCheck;                           // A position marking where to check if the player is grounded.
+	[SerializeField] private Transform m_CeilingCheck;                          // A position marking where to check for ceilings
+	[SerializeField] private Collider2D m_CrouchDisableCollider;                // A collider that will be disabled when crouching
 
 	const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
 	public bool m_Grounded;            // Whether or not the player is grounded.
@@ -18,11 +18,14 @@ public class CharacterController2D : MonoBehaviour
 	private Rigidbody2D m_Rigidbody2D;
 	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
-    public Animator anim;
-    public playermovement movescript;
-    public bool topcover;
+	public Animator anim;
+	public playermovement movescript;
+	public bool topcover;
 
-    [Header("Events")]
+	//audio
+	public AudioSource jumpsound;
+
+	[Header("Events")]
 	[Space]
 
 	public UnityEvent OnLandEvent;
@@ -48,28 +51,28 @@ public class CharacterController2D : MonoBehaviour
 	{
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;
-        anim.SetBool("isgrounded", false);
+		anim.SetBool("isgrounded", false);
 
-        // If the character has a ceiling preventing them from standing up, keep them crouching
-        if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
-        {
-            topcover = true;
-        }
+		// If the character has a ceiling preventing them from standing up, keep them crouching
+		if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
+		{
+			topcover = true;
+		}
 
-        else
-        {
-            topcover = false;
-        }
+		else
+		{
+			topcover = false;
+		}
 
-        // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
-        // This can be done using layers instead but Sample Assets will not overwrite your project settings.
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
+		// The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
+		// This can be done using layers instead but Sample Assets will not overwrite your project settings.
+		Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
 		for (int i = 0; i < colliders.Length; i++)
 		{
 			if (colliders[i].gameObject != gameObject)
 			{
 				m_Grounded = true;
-                anim.SetBool("isgrounded", true);
+				anim.SetBool("isgrounded", true);
 				if (!wasGrounded)
 					OnLandEvent.Invoke();
 			}
@@ -100,8 +103,8 @@ public class CharacterController2D : MonoBehaviour
 				{
 					m_wasCrouching = true;
 					OnCrouchEvent.Invoke(true);
-                    topcover = false;
-                }
+					topcover = false;
+				}
 
 				// Reduce the speed by the crouchSpeed multiplier
 				move *= m_CrouchSpeed;
@@ -109,19 +112,20 @@ public class CharacterController2D : MonoBehaviour
 				// Disable one of the colliders when crouching
 				if (m_CrouchDisableCollider != null)
 					m_CrouchDisableCollider.enabled = false;
-            } else
+			}
+			else
 			{
 				// Enable the collider when not crouching
 				if (m_CrouchDisableCollider != null)
 					m_CrouchDisableCollider.enabled = true;
-                    topcover = false;
+				topcover = false;
 
-                if (m_wasCrouching)
+				if (m_wasCrouching)
 				{
 					m_wasCrouching = false;
 					OnCrouchEvent.Invoke(false);
-                    topcover = false;
-                }
+					topcover = false;
+				}
 			}
 
 			// Move the character by finding the target velocity
@@ -142,38 +146,40 @@ public class CharacterController2D : MonoBehaviour
 				Flip();
 			}
 		}
-        // If the player should jump...
-        if (movescript.coyotetimecounter > 0f && jump)
+		// If the player should jump...
+		if (movescript.coyotetimecounter > 0f && jump)
 		{
 			// Add a vertical force to the player.
 			m_Grounded = true;
 			topcover = false;
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
 			m_JumpForce = 2400f;
-        }
+			jumpsound.Play();
+		}
 
-		if(movescript.iswallsliding && jump)
+		if (movescript.iswallsliding && jump)
 		{
-            topcover = false;
-            m_JumpForce = 2700f;
-            m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
-        }
+			topcover = false;
+			m_JumpForce = 2700f;
+			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
+			jumpsound.Play();
+		}
 
-    }
+	}
 
 
 	private void Flip()
 	{
-        if (movescript.iswallsliding == false)
-        {
-            // Switch the way the player is labelled as facing.
-            m_FacingRight = !m_FacingRight;
+		if (movescript.iswallsliding == false)
+		{
+			// Switch the way the player is labelled as facing.
+			m_FacingRight = !m_FacingRight;
 
-            // Multiply the player's x local scale by -1.
-            Vector3 theScale = transform.localScale;
-            theScale.x *= -1;
-            transform.localScale = theScale;
-        }
+			// Multiply the player's x local scale by -1.
+			Vector3 theScale = transform.localScale;
+			theScale.x *= -1;
+			transform.localScale = theScale;
+		}
 
 	}
 }

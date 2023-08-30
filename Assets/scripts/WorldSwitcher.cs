@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.Experimental.Rendering.Universal;
-using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.Tilemaps;
 
 public class WorldSwitcher : MonoBehaviour
 {
@@ -21,8 +18,8 @@ public class WorldSwitcher : MonoBehaviour
     public Tilemap realworldbackground;
     public Tilemap fakeworldbackground;
 
-    private Color defaultColor = new Color(1f,1f,1f,1);
-    private Color nearlyTransparent = new Color(1f,1f,1f, 0.5f);
+    private Color defaultColor = new Color(1f, 1f, 1f, 1);
+    private Color nearlyTransparent = new Color(1f, 1f, 1f, 0.5f);
     private Color nearlyTransparent2 = new Color(1f, 1f, 1f, 0.35f);
     private Color gone = new Color(1f, 1f, 1f, 0f);
 
@@ -31,6 +28,9 @@ public class WorldSwitcher : MonoBehaviour
 
     public Volume realworldpostprocessing;
     public Volume fakeworldpostprocessing;
+
+    public AudioSource R_sound;
+    public AudioSource F_sound;
 
     // Update is called once per frame
     void Update()
@@ -54,6 +54,9 @@ public class WorldSwitcher : MonoBehaviour
     public void Disable_fake_world()
     {
         Debug.Log("off");
+
+        R_sound.Play();
+
         fakeworldpostprocessing.enabled = false;
         realworldpostprocessing.enabled = true;
 
@@ -75,6 +78,9 @@ public class WorldSwitcher : MonoBehaviour
     public void Enable_fake_world()
     {
         Debug.Log("on");
+
+        F_sound.Play();
+
         fakeworldpostprocessing.enabled = true;
         realworldpostprocessing.enabled = false;
 
