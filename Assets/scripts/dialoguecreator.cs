@@ -19,10 +19,14 @@ public class dialoguecreator : MonoBehaviour
     public GameObject next_dialogue_trigger;
     public AudioSource click;
     public AudioSource textscroll;
+    private Rigidbody2D playerrigid;
+    private CharacterController2D charcontroller;
 
     void Start()
     {
+        playerrigid = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody2D>();
         movescript = GameObject.FindGameObjectWithTag("Player").GetComponent<playermovement>();
+        charcontroller = GameObject.FindGameObjectWithTag("Player").GetComponent<CharacterController2D>();
         text.text = string.Empty;
         dialogueanim = Dialogue.GetComponent<Animator>();
         dialogue_trigger = GetComponent<BoxCollider2D>();
@@ -34,6 +38,8 @@ public class dialoguecreator : MonoBehaviour
         {
             if (triggered)
             {
+                textscroll.Stop();
+
                 if (text.text == lines[index])
                 {
                     nextline();
@@ -51,14 +57,40 @@ public class dialoguecreator : MonoBehaviour
     {
         if (collision.CompareTag("PlayerDialogueColl"))
         {
-            playeranim.SetFloat("speed", 0f);
             triggered = true;
             Dialogue.SetActive(true);
             dialogueanim.SetBool("out", false);
-            movescript.enabled = false;
+
+            if(charcontroller.m_Grounded)
+            {
+                Debug.Log("ALREADY GROUNDEDDDDD");
+                movescript.enabled = false;
+                playerrigid.simulated = false;
+                playeranim.SetFloat("speed", 0f);
+            }
+            else
+            {
+                StartCoroutine(checkifgrounded());
+            }
+
+
             dialogue_trigger.enabled = false;
             startdialog();
         }
+    }
+
+    private IEnumerator checkifgrounded()
+    {
+        while(charcontroller.m_Grounded != true)
+        {
+            Debug.Log("waiting");
+            yield return null;
+        }
+
+        Debug.Log("ISGROUNDED!!!");
+        movescript.enabled = false;
+        playerrigid.simulated = false;
+        playeranim.SetFloat("speed", 0f);
     }
 
     void startdialog()
@@ -109,6 +141,7 @@ public class dialoguecreator : MonoBehaviour
         triggered = false;
         dialogueanim.SetBool("out", true);
         movescript.enabled = true;
+        playerrigid.simulated = true;
         yield return new WaitForSeconds(1);
         next_dialogue_trigger.SetActive(true);
         dialoguemanaging.How_many_viewed += 1;

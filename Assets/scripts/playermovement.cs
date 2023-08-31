@@ -12,7 +12,7 @@ public class playermovement : MonoBehaviour
 
     public float horizontalmove = 0;
     bool jump = false;
-    bool crouch = false;
+    public bool crouch = false;
     public float runspeed = 40f;
     public bool canslide = true;
     public bool canwalljump = true;
@@ -37,7 +37,6 @@ public class playermovement : MonoBehaviour
 
     public AudioSource landsound;
     public AudioSource slidesound;
-
 
     // Start is called before the first frame update
     void Start()
@@ -87,9 +86,10 @@ public class playermovement : MonoBehaviour
         if (Input.GetButtonDown("Jump") && iswallsliding && horizontalmove < -0.0001)
         {
             Debug.Log("jumped off wall left");
+            anim.SetBool("isjumping", true);
             jump = true;
             StartCoroutine("wallslidecooldown");
-            anim.SetBool("isjumping", true);
+            Debug.Log("boost!");
             rigid.AddForce(Vector2.left * 1000);
             runspeed = 40;
             StartCoroutine("aircontrolcooldown");
@@ -98,9 +98,10 @@ public class playermovement : MonoBehaviour
         if (Input.GetButtonDown("Jump") && iswallsliding && horizontalmove > 0.0001)
         {
             Debug.Log("jumped off wall right");
+            anim.SetBool("isjumping", true);
             jump = true;
             StartCoroutine("wallslidecooldown");
-            anim.SetBool("isjumping", true);
+            Debug.Log("boost!");
             rigid.AddForce(Vector2.right * 1000);
             runspeed = 40;
             StartCoroutine("aircontrolcooldown");
@@ -196,7 +197,6 @@ public class playermovement : MonoBehaviour
         if (collision.gameObject.layer == 9)
         {
             canwalljump = true;
-            //Debug.Log("touch");
         }
     }
 
@@ -205,7 +205,6 @@ public class playermovement : MonoBehaviour
         if (collision.gameObject.layer == 9)
         {
             canwalljump = false;
-            //Debug.Log("exit");
         }
     }
 
@@ -221,11 +220,9 @@ public class playermovement : MonoBehaviour
     {
         yield return new WaitForSeconds(0.01f);
         iswallsliding = false;
-        Debug.Log("OFF COOLDOWN");
         yield return new WaitForSeconds(0.3f);
         iswallsliding = true;
         coyotetime = 0.2f;
-        Debug.Log("ON COOLDOWN");
     }
 
     private IEnumerator stopslide()
@@ -233,7 +230,6 @@ public class playermovement : MonoBehaviour
         yield return new WaitForSeconds(0.7f);
         crouch = false;
         anim.SetBool("iscrouching", false);
-        runspeed = 40f;
 
         if (controller.topcover == true)
         {
@@ -245,21 +241,29 @@ public class playermovement : MonoBehaviour
             anim.SetBool("duck", false);
         }
 
-        else
-        {
-            controller.topcover = false;
-        }
-
         yield return new WaitForSeconds(0.25f);
         canslide = true;
+
+        StartCoroutine(checktopcover());
+    }
+
+    IEnumerator checktopcover()
+    {
+        while (controller.topcover == true)
+        {
+            yield return null;
+        }
+
+        Debug.Log("finally false");
+        yield return new WaitForSeconds(0.5f);
+        crouch = false;
     }
 
     private IEnumerator Addleft()
     {
-
         for (int i = 0; i < 18; i++)
         {
-            rigid.AddForce(Vector2.left * 1000);
+            rigid.AddForce(Vector2.left * 800);
             yield return new WaitForSeconds(0.03f);
         }
     }
@@ -268,7 +272,7 @@ public class playermovement : MonoBehaviour
     {
         for (int i = 0; i < 18; i++)
         {
-            rigid.AddForce(Vector2.right * 1000);
+            rigid.AddForce(Vector2.right * 800);
             yield return new WaitForSeconds(0.03f);
         }
     }

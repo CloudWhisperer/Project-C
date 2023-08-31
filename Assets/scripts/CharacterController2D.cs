@@ -1,8 +1,11 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class CharacterController2D : MonoBehaviour
 {
+	// !!!NOTE: This script was created by Brackeys. But i have modified it in my own ways. Most of the credit goes to him!
+
 	[SerializeField] public float m_JumpForce;                          // Amount of force added when the player jumps.
 	[Range(0, 1)][SerializeField] private float m_CrouchSpeed = .36f;           // Amount of maxSpeed applied to crouching movement. 1 = 100%
 	[Range(0, .3f)][SerializeField] private float m_MovementSmoothing = .05f;   // How much to smooth out the movement
@@ -10,6 +13,7 @@ public class CharacterController2D : MonoBehaviour
 	[SerializeField] private LayerMask m_WhatIsGround;                          // A mask determining what is ground to the character
 	[SerializeField] private Transform m_GroundCheck;                           // A position marking where to check if the player is grounded.
 	[SerializeField] private Transform m_CeilingCheck;                          // A position marking where to check for ceilings
+	//[SerializeField] private GameObject m_Ceiling;
 	[SerializeField] private Collider2D m_CrouchDisableCollider;                // A collider that will be disabled when crouching
 
 	const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
@@ -52,9 +56,10 @@ public class CharacterController2D : MonoBehaviour
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;
 		anim.SetBool("isgrounded", false);
+        //m_Ceiling.SetActive(false);
 
-		// If the character has a ceiling preventing them from standing up, keep them crouching
-		if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
+        // If the character has a ceiling preventing them from standing up, keep them crouching
+        if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
 		{
 			topcover = true;
 		}
@@ -62,7 +67,9 @@ public class CharacterController2D : MonoBehaviour
 		else
 		{
 			topcover = false;
+			movescript.anim.SetBool("duck", false);
 		}
+
 
 		// The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
 		// This can be done using layers instead but Sample Assets will not overwrite your project settings.
@@ -79,27 +86,29 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
-
 	public void Move(float move, bool crouch, bool jump)
 	{
 		// If crouching, check to see if the character can stand up
 		if (!crouch)
 		{
-			// If the character has a ceiling preventing them from standing up, keep them crouching
-			if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
+            movescript.crouch = false;
+
+            // If the character has a ceiling preventing them from standing up, keep them crouching
+            if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
 			{
 				crouch = true;
-			}
+            }
 		}
 
 		//only control the player if grounded or airControl is turned on
 		if (m_Grounded || m_AirControl)
 		{
+			//m_Ceiling.SetActive(true);
 
-			// If crouching
-			if (crouch)
+            // If crouching
+            if (crouch)
 			{
-				if (!m_wasCrouching)
+                if (!m_wasCrouching)
 				{
 					m_wasCrouching = true;
 					OnCrouchEvent.Invoke(true);
@@ -120,12 +129,12 @@ public class CharacterController2D : MonoBehaviour
 					m_CrouchDisableCollider.enabled = true;
 				topcover = false;
 
-				if (m_wasCrouching)
+                if (m_wasCrouching)
 				{
 					m_wasCrouching = false;
 					OnCrouchEvent.Invoke(false);
 					topcover = false;
-				}
+                }
 			}
 
 			// Move the character by finding the target velocity
@@ -149,6 +158,7 @@ public class CharacterController2D : MonoBehaviour
 		// If the player should jump...
 		if (movescript.coyotetimecounter > 0f && jump)
 		{
+			//m_Ceiling.SetActive(false);
 			// Add a vertical force to the player.
 			m_Grounded = true;
 			topcover = false;
@@ -159,7 +169,8 @@ public class CharacterController2D : MonoBehaviour
 
 		if (movescript.iswallsliding && jump)
 		{
-			topcover = false;
+            //m_Ceiling.SetActive(false);
+            topcover = false;
 			m_JumpForce = 2700f;
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
 			jumpsound.Play();
